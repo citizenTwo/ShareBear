@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        is-multidex="true"
+        jar="P:\Mr Developer\Applications\ShareBear\app\build\intermediates\incremental-classes\debug\instant-run-bootstrap.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="4eec037d19c83b2df75f773e2d94ac95f687a601">
+        <dex dex="P:\Mr Developer\Applications\ShareBear\app\build\intermediates\transforms\dex\debug\folders\1000\10000\instant-run-bootstrap_01290e848718c24e1cdc968d640daa70aff08291\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\Lakshay Raj\.android\build-cache\655a08aab4cee1c841d87e132119d8370e183e4d\output\jars\classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="914f5d3e3ace66080e59613708f06d129a222e25">
+        <dex dex="P:\Mr Developer\Applications\ShareBear\app\build\intermediates\transforms\dex\debug\folders\1000\10\classes_b86090520a7e7dcbf25f962d2f597705ade5ed36\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\Lakshay Raj\.android\build-cache\04795c7721607ed12c8da4018442c0f7a9230b0d\output\jars\classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="da27a32db6af8954ee8061537c7d476fcb1df46f">
+        <dex dex="P:\Mr Developer\Applications\ShareBear\app\build\intermediates\transforms\dex\debug\folders\1000\10\classes_d684b55ec0627d6bc6e4620f2b094f9637026f97\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\Lakshay Raj\.android\build-cache\19e9b5319623176256e631b3c64323019b64ca3a\output\jars\classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="4a26a1154d053ab11aaf4c3967c42a4d66390991">
+        <dex dex="P:\Mr Developer\Applications\ShareBear\app\build\intermediates\transforms\dex\debug\folders\1000\10\classes_c4552b57d729c24e0f47925174ac701bc8f333a6\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\Lakshay Raj\.android\build-cache\d25c388b45f6355e44b0ce114a26c121a6d5d991\output\jars\classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="45f697922e6f072daa12f8a2995dc77ab03c11da">
+        <dex dex="P:\Mr Developer\Applications\ShareBear\app\build\intermediates\transforms\dex\debug\folders\1000\10\classes_de28d58fec350926e88c7605b3cd709af8d8d0cf\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\Lakshay Raj\.android\build-cache\04dff4e11d038c3c9c16ff60143982075c14eb51\output\jars\classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="47635644d0d5c103c1dd8360549eb9ba3225c7d3">
+        <dex dex="P:\Mr Developer\Applications\ShareBear\app\build\intermediates\transforms\dex\debug\folders\1000\10\classes_83704edfa5b7106e135d460b5ad40b9adba4a614\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="P:\Mr Developer\Applications\ShareBear\app\build\intermediates\incremental-runtime-classes\debug\instant-run.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="caff8e51a24901cfc9cd7e1cf83d84f4cb0c103b">
+        <dex dex="P:\Mr Developer\Applications\ShareBear\app\build\intermediates\transforms\dex\debug\folders\1000\10000\instant-run_1485194ceb95df1226a6373df43284e7a087646f\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\Lakshay Raj\.android\build-cache\f06b2b5eb9cc89d8fca26d3741333a704f3966e1\output\jars\classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="052f5f840f21174a3ecf6544130194e2652cbb73">
+        <dex dex="P:\Mr Developer\Applications\ShareBear\app\build\intermediates\transforms\dex\debug\folders\1000\10\classes_e826cb034dce00e9f0e703991bbbffd2995c057f\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\Lakshay Raj\.android\build-cache\3d1f3d0a051f57416a715decea27607766c9c5da\output\jars\classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="d7c42c80f6509b9ea4db28ca7859ffae08ec5741">
+        <dex dex="P:\Mr Developer\Applications\ShareBear\app\build\intermediates\transforms\dex\debug\folders\1000\10\classes_8b49c0de9d07e4f3536822774e62f4ea386c94b8\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\Lakshay Raj\.android\build-cache\6ee3c8bb0f4f1070b10d3527708c5d1caf2faa79\output\jars\classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="150252b33b00274cc868578ade018fda0d43a3eb">
+        <dex dex="P:\Mr Developer\Applications\ShareBear\app\build\intermediates\transforms\dex\debug\folders\1000\10\classes_d48fb79f52b16db3bc45200b4754b09dd5c7255c\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\Lakshay Raj\.android\build-cache\fb29e47921b7a3210cdf2c021f0746c5a55b5f6e\output\jars\classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="807751a24cf96566fd8675517c94d8463cf364db">
+        <dex dex="P:\Mr Developer\Applications\ShareBear\app\build\intermediates\transforms\dex\debug\folders\1000\10\classes_6beded3bc27ef7a955bc868fc3f054af42ea77a2\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\Lakshay Raj\.android\build-cache\618e6fb433d6f979e88721a98fe5012b88ee9322\output\jars\classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="6ef31f1555bb4cc513ec8d52711365a8b89f3600">
+        <dex dex="P:\Mr Developer\Applications\ShareBear\app\build\intermediates\transforms\dex\debug\folders\1000\10\classes_7541451a175fb9be378c2b2c55d2416618113f1d\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="C:\Users\Lakshay Raj\.android\build-cache\5b36c3831fe1ca95fa6d81f876b3fa8e393e4b30\output\jars\classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="efb8cb62d47d157c29d1521daac7eefd4cb881ee">
+        <dex dex="P:\Mr Developer\Applications\ShareBear\app\build\intermediates\transforms\dex\debug\folders\1000\10\classes_b0e793ff6eaac6e28d89bc97e0c45f0dc1da559c\classes.dex" />
+    </item>
+
+</items>

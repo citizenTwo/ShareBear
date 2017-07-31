@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
+    tools:context="xyz.mrdeveloper.sharebear.MainActivity">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginTop="3dp"
+        android:orientation="horizontal">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/profile_image"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:src="@drawable/com_facebook_profile_picture_blank_square"
+            app:civ_border_color="#888888"
+            app:civ_border_width="2dp" />
+
+        <TextView
+            android:id="@+id/profile_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="90dp"
+            android:textColor="@color/colorTextDark"
+            android:text="Hi, Dirty Hippie"
+            android:textSize="18sp" />
+
+    </RelativeLayout>
+
+    <xyz.mrdeveloper.sharebear.VerticalViewPager
+        android:id="@+id/verticalViewPager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="60dp"
+        android:layout_marginTop="58dp" />
+
+    <LinearLayout
+        android:id="@+id/buttons"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/share_facebook"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
+            android:clickable="true"
+            android:background="@drawable/button_facebook" />
+
+        <ImageButton
+            android:id="@+id/share_instagram"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:onClick="onClick"
+            android:layout_marginLeft="25dp"
+            android:background="@drawable/button_instagram" />
+
+        <ImageButton
+            android:id="@+id/share_twitter"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:clickable="true"
+            android:layout_marginLeft="25dp"
+            android:background="@drawable/button_twitter" />
+
+        <ImageButton
+            android:id="@+id/share_linkedin"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:clickable="true"
+            android:layout_marginLeft="25dp"
+            android:background="@drawable/button_linkedin" />
+
+        <ImageButton
+            android:id="@+id/share_whatsapp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:clickable="true"
+            android:layout_marginLeft="25dp"
+            android:background="@drawable/button_whatsapp" />
+
+    </LinearLayout>
+
+</RelativeLayout>
