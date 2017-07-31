@@ -141,7 +141,6 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onSuccess(LoginResult loginResult) {
                 //AccessToken accessToken = loginResult.getAccessToken();
-                
                 Profile profile = Profile.getCurrentProfile();
                 nextActivity(profile);
                 Toast.makeText(getApplicationContext(), "Logging in...", Toast.LENGTH_SHORT).show();
