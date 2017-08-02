@@ -141,7 +141,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onSuccess(LoginResult loginResult) {
                 //AccessToken accessToken = loginResult.getAccessToken();
-                
+
                 Profile profile = Profile.getCurrentProfile();
                 nextActivity(profile);
                 Toast.makeText(getApplicationContext(), "Logging in...", Toast.LENGTH_SHORT).show();
@@ -164,7 +164,7 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        
+
         //Facebook login
         Profile profile = Profile.getCurrentProfile();
         nextActivity(profile);
@@ -172,7 +172,6 @@ public class LoginActivity extends AppCompatActivity {
 
     @Override
     protected void onPause() {
-
         super.onPause();
     }
 
@@ -187,17 +186,22 @@ public class LoginActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int responseCode, Intent intent) {
         super.onActivityResult(requestCode, responseCode, intent);
         //Facebook login
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         callbackManager.onActivityResult(requestCode, responseCode, intent);
-
     }
 
     private void nextActivity(Profile profile) {
+
         if (profile != null) {
+
             Intent main = new Intent(LoginActivity.this, MainActivity.class);
+            main.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             main.putExtra("FirstName", profile.getFirstName());
             main.putExtra("LastName", profile.getLastName());
             main.putExtra("imageURL", profile.getProfilePictureUri(200, 200).toString());
             startActivity(main);
+
+            finish();
         }
     }
 }
