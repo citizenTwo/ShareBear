@@ -29,6 +29,7 @@ public class VerticalViewPager extends ViewPager {
 
     private class VerticalPageTransformer implements PageTransformer {
         private static final float MIN_SCALE = 0.75f;
+
         @Override
         public void transformPage(View view, float position) {
 
@@ -44,8 +45,7 @@ public class VerticalViewPager extends ViewPager {
                 view.setScaleX(1);
                 view.setScaleY(1);
 
-            }
-            else if (position <= 1) {
+            } else if (position <= 1) {
                 view.setAlpha(1);
                 view.setTranslationX(view.getWidth() * -position);
 
@@ -53,8 +53,7 @@ public class VerticalViewPager extends ViewPager {
                         + (1 - MIN_SCALE) * (1 - Math.abs(position));
                 view.setScaleX(scaleFactor);
                 view.setScaleY(scaleFactor);
-            }
-            else
+            } else
                 view.setAlpha(0);
         }
     }
@@ -72,7 +71,7 @@ public class VerticalViewPager extends ViewPager {
     }
 
     @Override
-    public boolean onInterceptTouchEvent(MotionEvent ev){
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
         boolean intercepted = super.onInterceptTouchEvent(swapXY(ev));
         swapXY(ev); // return touch coordinates to original reference frame for any child views
         return intercepted;
