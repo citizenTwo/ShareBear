@@ -12,16 +12,8 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.facebook.GraphRequest;
-import com.facebook.GraphResponse;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
-
-import static xyz.mrdeveloper.sharebear.MainActivity.verticalPagerAdapter;
 
 /**
  * Created by Mr. Developer on 29-04-2017.
@@ -29,20 +21,14 @@ import static xyz.mrdeveloper.sharebear.MainActivity.verticalPagerAdapter;
 
 class VerticalPagerAdapter extends PagerAdapter {
 
-    private ArrayList<Post> mPostList;
     private Context mContext;
+    ArrayList<Post> mPostList;
     private LayoutInflater mLayoutInflater;
-    static int position;
-    private int totalPhotos;
-    private GraphResponse mPreviousResponse;
 
-    VerticalPagerAdapter(Context context, ArrayList<Post> postList, GraphResponse previousResponse) {
-        mPostList = postList;
+    VerticalPagerAdapter(Context context, ArrayList<Post> postList) {
         mContext = context;
+        mPostList = postList;
         mLayoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        mPreviousResponse = previousResponse;
-        totalPhotos = postList.size();
-        Log.d("Check", "Total Photos : " + totalPhotos);
     }
 
     @Override
@@ -58,27 +44,6 @@ class VerticalPagerAdapter extends PagerAdapter {
     @Override
     public Object instantiateItem(ViewGroup container, int pos) {
         View itemView = mLayoutInflater.inflate(R.layout.newsfeed_page, container, false);
-
-        position = pos;
-        Log.d("Check", "Position: " + Integer.toString(position));
-
-        if (position == totalPhotos - 5) {
-            Log.d("Check", "User wanna read more!");
-
-            GraphRequest nextResultsRequests = mPreviousResponse.getRequestForPagedResults(GraphResponse.PagingDirection.NEXT);
-            if (nextResultsRequests != null) {
-                nextResultsRequests.setCallback(new GraphRequest.Callback() {
-                    @Override
-                    public void onCompleted(GraphResponse response) {
-                        //your code
-                        ParseTheShitOut(response);
-                        //save the last GraphResponse you received
-                        mPreviousResponse = response;
-                    }
-                });
-                nextResultsRequests.executeAsync();
-            }
-        }
 
         TextView label = (TextView) itemView.findViewById(R.id.textView);
         ImageView imageView = (ImageView) itemView.findViewById(R.id.imageView);
@@ -96,32 +61,11 @@ class VerticalPagerAdapter extends PagerAdapter {
                 .thumbnail(0.1f)
                 .into(imageView);
 
+        Log.d("Check", "Position: " + pos);
+        Log.d("Check", "Total Photos: " + mPostList.size());
+
         container.addView(itemView);
         return itemView;
-    }
-
-    private void ParseTheShitOut(GraphResponse response) {
-        try {
-            JSONObject JSONObjectGraphResponse = new JSONObject(String.valueOf(response.getJSONObject()));
-            JSONArray JSONArrayGraphResponse = JSONObjectGraphResponse.getJSONArray("data");
-
-            for (int i = 0; i < JSONArrayGraphResponse.length(); i++) {
-                JSONObject postData = JSONArrayGraphResponse.getJSONObject(i);
-
-                //get your values
-                if ("photo".equals(postData.getString("type")) && postData.has("message") && postData.has("full_picture") && postData.has("id")) {
-                    String id = postData.getString("id");
-                    String postId = id.substring(id.lastIndexOf('_') + 1);
-
-                    Post post = new Post(postData.getString("message"), postData.getString("full_picture"), postId);
-                    mPostList.add(post);
-                    verticalPagerAdapter.notifyDataSetChanged();
-                    totalPhotos++;
-                }
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
     }
 
     @Override
