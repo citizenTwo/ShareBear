@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -51,13 +52,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     ProgressDialog dialog;
     VerticalViewPager verticalViewPager;
     private GraphResponse previousResponse;
-    public static String firstName, lastName, imageURL;
+    public String firstName, lastName, URL;
+    public static boolean isVideoPlaying;
     public ArrayList<Post> postsList;
     public static int position;
-    boolean doubleBackToExitPressedOnce = false;
     private ShareDialog shareDialog;
-    boolean justStarted;
     public VerticalPagerAdapter verticalPagerAdapter;
+    boolean doubleBackToExitPressedOnce = false;
+    boolean justStarted;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,11 +69,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         endIsHere = false;
         justStarted = true;
+        isVideoPlaying = false;
 
         Bundle inBundle = getIntent().getExtras();
         firstName = inBundle.get("FirstName").toString();
         lastName = inBundle.get("LastName").toString();
-        imageURL = inBundle.get("imageURL").toString();
+        URL = inBundle.get("URL").toString();
 
         Log.d("Check", firstName + "  " + lastName);
 
@@ -82,7 +85,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         postsList = new ArrayList<>();
         verticalViewPager = (VerticalViewPager) findViewById(R.id.verticalViewPager);
-        verticalPagerAdapter = new VerticalPagerAdapter(this, postsList);
+        verticalPagerAdapter = new VerticalPagerAdapter(this, postsList, this);
 
         verticalViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
 
@@ -98,6 +101,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void onPageSelected(int currentPage) {
                 //currentPage is the position that is currently displayed.
                 position = currentPage;
+
+                isVideoPlaying = "video".equals(postsList.get(currentPage).type);
 
                 if (currentPage == postsList.size() - 7) {
                     Log.d("Check", "User wanna read more!");
@@ -131,7 +136,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         Glide
                 .with(this)
-                .load(imageURL)
+                .load(URL)
                 .centerCrop()
                 .crossFade()
                 .thumbnail(1.0f)
@@ -170,7 +175,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void GetPosts() {
         new GraphRequest(
-                AccessToken.getCurrentAccessToken(), "1400364650188123/posts?fields=message,type,full_picture&limit=20", null, HttpMethod.GET,
+                AccessToken.getCurrentAccessToken(), "1400364650188123/posts?fields=message,type,full_picture,source&limit=20", null, HttpMethod.GET,
                 new GraphRequest.Callback() {
                     public void onCompleted(GraphResponse response) {
                         previousResponse = response;
@@ -188,12 +193,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             for (int i = 0; i < JSONArrayGraphResponse.length(); i++) {
                 JSONObject postData = JSONArrayGraphResponse.getJSONObject(i);
 
+                String type = postData.getString("type");
                 //get your values
-                if ("photo".equals(postData.getString("type")) && postData.has("message") && postData.has("full_picture") && postData.has("id")) {
+                if ("photo".equals(type) && postData.has("message") && postData.has("full_picture") && postData.has("id")) {
                     String id = postData.getString("id");
                     String postId = id.substring(id.lastIndexOf('_') + 1);
 
-                    Post post = new Post(postData.getString("message"), postData.getString("full_picture"), postId);
+                    Post post = new Post(postData.getString("message"), postData.getString("full_picture"), postId, type);
+                    postsList.add(post);
+                    verticalPagerAdapter.notifyDataSetChanged();
+                } else if ("video".equals(type) && postData.has("source")) {
+                    String message = "";
+
+                    if (!postData.has("message")) {
+                        message = "Video by UPES Campus Ambassadors";
+                    }
+
+                    Post post = new Post(message, postData.getString("source"), postData.getString("id"), type);
                     postsList.add(post);
                     verticalPagerAdapter.notifyDataSetChanged();
                 }
@@ -203,6 +219,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 justStarted = false;
                 dialog.dismiss();
             }
+
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -309,7 +326,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
 
             case R.id.share_whatsapp:
-                String whatsAppMessage = "http://www.facebook.com/1400364650188123/posts/" + postsList.get(position).id;
+                String whatsAppMessage;
                 whatsAppMessage = postsList.get(position).caption;
 
                 //You can read the image from external drive too
@@ -338,7 +355,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 try {
                     theBitmap = Glide.
                             with(getBaseContext()).
-                            load(postsList.get(position).imageURL).
+                            load(postsList.get(position).URL).
                             asBitmap().
                             into(500, 500).
                             get();
@@ -389,6 +406,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return bmpUri;
     }
 
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+    }
+
     private void logout() {
         LoginManager.getInstance().logOut();
         Intent login = new Intent(MainActivity.this, LoginActivity.class);
@@ -398,6 +420,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onBackPressed() {
+
         if (doubleBackToExitPressedOnce) {
             super.onBackPressed();
 
