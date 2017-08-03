@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
@@ -12,6 +13,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -41,25 +43,30 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import static xyz.mrdeveloper.sharebear.VerticalPagerAdapter.position;
-
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private ArrayList<Post> postsList;
-    boolean doubleBackToExitPressedOnce = false;
-    private ShareDialog shareDialog;
     Uri imageUri;
-    GraphResponse previousResponse;
+    boolean endIsHere;
     int viewID;
     ProgressDialog dialog;
+    VerticalViewPager verticalViewPager;
+    private GraphResponse previousResponse;
     public static String firstName, lastName, imageURL;
-    public static VerticalPagerAdapter verticalPagerAdapter;
+    public ArrayList<Post> postsList;
+    public static int position;
+    boolean doubleBackToExitPressedOnce = false;
+    private ShareDialog shareDialog;
+    boolean justStarted;
+    public VerticalPagerAdapter verticalPagerAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         shareDialog = new ShareDialog(this);
+
+        endIsHere = false;
+        justStarted = true;
 
         Bundle inBundle = getIntent().getExtras();
         firstName = inBundle.get("FirstName").toString();
@@ -73,7 +80,54 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         ImageView profileImage = (ImageView) findViewById(R.id.profile_image);
 
-        Log.d("Check", imageURL);
+        postsList = new ArrayList<>();
+        verticalViewPager = (VerticalViewPager) findViewById(R.id.verticalViewPager);
+        verticalPagerAdapter = new VerticalPagerAdapter(this, postsList);
+
+        verticalViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+
+            @Override
+            public void onPageScrollStateChanged(int arg0) {
+            }
+
+            @Override
+            public void onPageScrolled(int arg0, float arg1, int arg2) {
+            }
+
+            @Override
+            public void onPageSelected(int currentPage) {
+                //currentPage is the position that is currently displayed.
+                position = currentPage;
+
+                if (currentPage == postsList.size() - 7) {
+                    Log.d("Check", "User wanna read more!");
+
+                    GraphRequest nextResultsRequests = previousResponse.getRequestForPagedResults(GraphResponse.PagingDirection.NEXT);
+                    if (nextResultsRequests != null) {
+                        nextResultsRequests.setCallback(new GraphRequest.Callback() {
+                            @Override
+                            public void onCompleted(GraphResponse response) {
+                                //your code
+                                ParseTheShitOut(response);
+                                //save the last GraphResponse you received
+                                previousResponse = response;
+                                ;
+                            }
+                        });
+                        nextResultsRequests.executeAsync();
+                    } else {
+                        Log.d("Check", "End is Here!");
+                        endIsHere = true;
+                    }
+                }
+
+                if (currentPage == postsList.size() - 1) {
+                    Toast.makeText(getBaseContext(), "That's all from our side :)", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+
+        verticalViewPager.setAdapter(verticalPagerAdapter);
 
         Glide
                 .with(this)
@@ -94,8 +148,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ImageButton shareWhatsApp = (ImageButton) findViewById((R.id.share_whatsapp));
         shareWhatsApp.setOnClickListener(this);
 
-        postsList = new ArrayList<>();
         dialog = ProgressDialog.show(this, "Updating", "Getting latest posts...", true);
+        dialog.setCanceledOnTouchOutside(true);
+
+        dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(final DialogInterface arg0) {
+                Toast.makeText(getBaseContext(), "Can't update feed :(", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(final DialogInterface arg0) {
+                Toast.makeText(getBaseContext(), "Feed Updated!", Toast.LENGTH_SHORT).show();
+            }
+        });
 
         GetPosts();
     }
@@ -105,7 +173,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 AccessToken.getCurrentAccessToken(), "1400364650188123/posts?fields=message,type,full_picture&limit=20", null, HttpMethod.GET,
                 new GraphRequest.Callback() {
                     public void onCompleted(GraphResponse response) {
-                        Log.d("Check", "Response : " + response);
                         previousResponse = response;
                         ParseTheShitOut(response);
                     }
@@ -113,7 +180,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ).executeAsync();
     }
 
-    private void ParseTheShitOut(GraphResponse response) {
+    private void ParseTheShitOut(final GraphResponse response) {
         try {
             JSONObject JSONObjectGraphResponse = new JSONObject(String.valueOf(response.getJSONObject()));
             JSONArray JSONArrayGraphResponse = JSONObjectGraphResponse.getJSONArray("data");
@@ -128,40 +195,42 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                     Post post = new Post(postData.getString("message"), postData.getString("full_picture"), postId);
                     postsList.add(post);
+                    verticalPagerAdapter.notifyDataSetChanged();
                 }
+            }
+
+            if (justStarted) {
+                justStarted = false;
+                dialog.dismiss();
             }
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
-        dialog.dismiss();
-
-        VerticalViewPager verticalViewPager = (VerticalViewPager) findViewById(R.id.verticalViewPager);
-        verticalPagerAdapter = new VerticalPagerAdapter(this, postsList, previousResponse);
-        verticalViewPager.setAdapter(verticalPagerAdapter);
     }
 
     @Override
     public void onClick(View view) {
 
+        Log.d("Check", "Position in MainActivity: " + position);
+
         viewID = view.getId();
 
         if (viewID == R.id.share_facebook) {
             ShareLinkContent content = new ShareLinkContent.Builder()
-                    .setContentUrl(Uri.parse("http://www.facebook.com/1400364650188123/posts/" + postsList.get(position - 1).id))
+                    .setContentUrl(Uri.parse("http://www.facebook.com/1400364650188123/posts/" + postsList.get(position).id))
                     .setShareHashtag(new ShareHashtag.Builder().setHashtag("#CampusAmbassadors").build())
                     .build();
             shareDialog.show(content);
         } else if (viewID == R.id.share_linkedin) {
             Intent linkedinIntent = new Intent(Intent.ACTION_SEND);
 
-            String msg = postsList.get(position - 1).caption;
-            String text = "http://www.facebook.com/1400364650188123/posts/" + postsList.get(position - 1).id;
+            String msg = postsList.get(position).caption;
+            String text = "http://www.facebook.com/1400364650188123/posts/" + postsList.get(position).id;
 
             linkedinIntent.setType("text/plain");
             linkedinIntent.putExtra(Intent.EXTRA_TEXT, msg + " " + text);
 
-//                uri = postsList.get(position - 1).imageUri;
+//                uri = postsList.get(position).imageUri;
 //                linkedinIntent.putExtra(Intent.EXTRA_STREAM, uri);
 //                linkedinIntent.setType("image/*");
 
@@ -186,17 +255,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         } else {
             dialog = ProgressDialog.show(this, "Loading", "Please wait...", true);
 
-            Log.d("Check", "Previous URI : " + imageUri);
+            dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                @Override
+                public void onCancel(final DialogInterface arg0) {
+                    Toast.makeText(getBaseContext(), "Share Failed. Try again", Toast.LENGTH_SHORT).show();
+                }
+            });
+
+            dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                @Override
+                public void onDismiss(final DialogInterface arg0) {
+                    Toast.makeText(getBaseContext(), "Ready to share!", Toast.LENGTH_SHORT).show();
+                }
+            });
+
             setImageUri();
         }
     }
 
     public void handleOnClick() {
-        Log.d("Check", "New URI : " + imageUri);
         switch (viewID) {
 
             case R.id.share_instagram:
-                String msg = postsList.get(position - 1).caption;
+                String msg = postsList.get(position).caption;
                 ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
                 ClipData clip = ClipData.newPlainText("caption", msg);
                 clipboard.setPrimaryClip(clip);
@@ -209,7 +290,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 intent.setPackage("com.instagram.android");
                 startActivity(intent);
-
                 break;
 
             case R.id.share_twitter:
@@ -217,7 +297,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 intent = new Intent();
                 intent.setAction(Intent.ACTION_SEND);
 
-                msg = postsList.get(position - 1).caption;
+                msg = postsList.get(position).caption;
                 intent.putExtra(Intent.EXTRA_TEXT, msg);
                 intent.setType("text/plain");
 
@@ -226,12 +306,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 intent.setPackage("com.twitter.android");
                 startActivity(intent);
-
                 break;
 
             case R.id.share_whatsapp:
-                String whatsAppMessage = "http://www.facebook.com/1400364650188123/posts/" + postsList.get(position - 1).id;
-                whatsAppMessage = postsList.get(position - 1).caption;
+                String whatsAppMessage = "http://www.facebook.com/1400364650188123/posts/" + postsList.get(position).id;
+                whatsAppMessage = postsList.get(position).caption;
 
                 //You can read the image from external drive too
                 intent = new Intent();
@@ -259,7 +338,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 try {
                     theBitmap = Glide.
                             with(getBaseContext()).
-                            load(postsList.get(position - 1).imageURL).
+                            load(postsList.get(position).imageURL).
                             asBitmap().
                             into(500, 500).
                             get();
@@ -274,7 +353,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (null != theBitmap) {
                     Log.d("Check", "Image loaded");
                     imageUri = getLocalBitmapUri(theBitmap);
-                    Log.d("Check", "Transit URI : " + imageUri);
+
                     dialog.dismiss();
                     handleOnClick();
                 }
