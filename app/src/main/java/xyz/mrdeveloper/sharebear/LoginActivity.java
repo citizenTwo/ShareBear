@@ -106,7 +106,7 @@ public class LoginActivity extends AppCompatActivity {
             Intent main = new Intent(LoginActivity.this, MainActivity.class);
             main.putExtra("FirstName", profile.getFirstName());
             main.putExtra("LastName", profile.getLastName());
-            main.putExtra("imageURL", profile.getProfilePictureUri(200, 200).toString());
+            main.putExtra("URL", profile.getProfilePictureUri(200, 200).toString());
             startActivity(main);
         }
     }*/
@@ -198,7 +198,7 @@ public class LoginActivity extends AppCompatActivity {
             main.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             main.putExtra("FirstName", profile.getFirstName());
             main.putExtra("LastName", profile.getLastName());
-            main.putExtra("imageURL", profile.getProfilePictureUri(200, 200).toString());
+            main.putExtra("URL", profile.getProfilePictureUri(200, 200).toString());
             startActivity(main);
 
             finish();
