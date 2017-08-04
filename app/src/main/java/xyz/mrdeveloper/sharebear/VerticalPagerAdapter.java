@@ -85,7 +85,7 @@ class VerticalPagerAdapter extends PagerAdapter {
             mLinearLayout.addView(videoView);
 
             MediaController controller = new MediaController(mContext);
-            videoView.setVideoPath(mPostList.get(pos).URL);
+            videoView.setVideoPath(mPostList.get(pos).URLs);
             videoView.setMediaController(controller);
             videoView.start();
 
@@ -99,7 +99,7 @@ class VerticalPagerAdapter extends PagerAdapter {
 
             Glide
                     .with(mContext)
-                    .load(mPostList.get(pos).URL)
+                    .load(mPostList.get(pos).URLs)
                     .centerCrop()
                     .placeholder(R.drawable.ambassadors_logo)
                     .crossFade()
@@ -126,10 +126,16 @@ class VerticalPagerAdapter extends PagerAdapter {
 package xyz.mrdeveloper.sharebear;
 
 import android.app.Activity;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.net.Uri;
+import android.os.Bundle;
+import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.PagerAdapter;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -172,20 +178,23 @@ class VerticalPagerAdapter extends PagerAdapter {
     }
 
     @Override
-    public Object instantiateItem(ViewGroup container, int pos) {
+    public Object instantiateItem(ViewGroup container, final int pos) {
         View itemView = mLayoutInflater.inflate(R.layout.newsfeed_page, container, false);
 
         LinearLayout linearLayout = (LinearLayout) itemView.findViewById(R.id.linearLayout);
+
         TextView labelView = (TextView) itemView.findViewById(R.id.textView);
+        labelView.setText(mPostList.get(pos).caption);
+
         ImageView photoView = (ImageView) itemView.findViewById(R.id.imageView);
+
         FullscreenVideoLayout videoView = (FullscreenVideoLayout) itemView.findViewById(R.id.videoView);
         videoView.setActivity(mActivity);
-        labelView.setText(mPostList.get(pos).caption);
 
         if ("video".equals(mPostList.get(pos).type)) {
             linearLayout.removeView(photoView);
 
-            Uri videoUri = Uri.parse(mPostList.get(pos).URL);
+            Uri videoUri = Uri.parse(mPostList.get(pos).URLs.get(0));
 
             try {
                 videoView.setVideoURI(videoUri);
@@ -199,7 +208,7 @@ class VerticalPagerAdapter extends PagerAdapter {
 
             Glide
                     .with(mContext)
-                    .load(mPostList.get(pos).URL)
+                    .load(mPostList.get(pos).URLs.get(0))
                     .centerCrop()
                     .placeholder(R.drawable.ambassadors_logo)
                     .crossFade()
@@ -207,6 +216,33 @@ class VerticalPagerAdapter extends PagerAdapter {
                     .diskCacheStrategy(DiskCacheStrategy.RESULT)
                     .thumbnail(0.1f)
                     .into(photoView);
+
+            photoView.setOnTouchListener(new View.OnTouchListener() {
+
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    Log.d("Check", "OnTouch event: " + event);
+
+                    int action = MotionEventCompat.getActionMasked(event);
+
+                    Log.d("Check", "MotionEvent : " + event);
+
+                    if (action == MotionEvent.ACTION_UP) {
+
+                        Bundle bundle = new Bundle();
+                        bundle.putString("caption", mPostList.get(pos).caption);
+                        bundle.putStringArrayList("imageURLs", mPostList.get(pos).URLs);
+
+                        FragmentManager fragmentManager = mActivity.getFragmentManager();
+                        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+                        SlideshowDialogFragment slideshowDialogFragment = SlideshowDialogFragment.newInstance();
+                        slideshowDialogFragment.setArguments(bundle);
+                        slideshowDialogFragment.show(fragmentTransaction, "slideshow");
+                    }
+                    return true;
+                }
+            });
         }
 
         container.addView(itemView);

@@ -60,6 +60,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public VerticalPagerAdapter verticalPagerAdapter;
     boolean doubleBackToExitPressedOnce = false;
     boolean justStarted;
+    boolean isCancelled;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,12 +70,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         endIsHere = false;
         justStarted = true;
+        isCancelled = false;
         isVideoPlaying = false;
 
         Bundle inBundle = getIntent().getExtras();
         firstName = inBundle.get("FirstName").toString();
         lastName = inBundle.get("LastName").toString();
-        URL = inBundle.get("URL").toString();
+        URL = inBundle.get("URLs").toString();
 
         Log.d("Check", firstName + "  " + lastName);
 
@@ -101,7 +103,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void onPageSelected(int currentPage) {
                 //currentPage is the position that is currently displayed.
                 position = currentPage;
-
                 isVideoPlaying = "video".equals(postsList.get(currentPage).type);
 
                 if (currentPage == postsList.size() - 7) {
@@ -159,6 +160,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override
             public void onCancel(final DialogInterface arg0) {
+                isCancelled = true;
                 Toast.makeText(getBaseContext(), "Can't update feed :(", Toast.LENGTH_SHORT).show();
             }
         });
@@ -166,7 +168,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
             public void onDismiss(final DialogInterface arg0) {
-                Toast.makeText(getBaseContext(), "Feed Updated!", Toast.LENGTH_SHORT).show();
+                if (!isCancelled) {
+                    Toast.makeText(getBaseContext(), "Feed Updated!", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -175,7 +179,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void GetPosts() {
         new GraphRequest(
-                AccessToken.getCurrentAccessToken(), "1400364650188123/posts?fields=message,type,full_picture,source&limit=20", null, HttpMethod.GET,
+                AccessToken.getCurrentAccessToken(), "1400364650188123/posts?fields=message,type,full_picture,source,attachments{subattachments.limit(100){media{image{src}}}}&limit=20", null, HttpMethod.GET,
                 new GraphRequest.Callback() {
                     public void onCompleted(GraphResponse response) {
                         previousResponse = response;
@@ -190,10 +194,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             JSONObject JSONObjectGraphResponse = new JSONObject(String.valueOf(response.getJSONObject()));
             JSONArray JSONArrayGraphResponse = JSONObjectGraphResponse.getJSONArray("data");
 
-            for (int i = 0; i < JSONArrayGraphResponse.length(); i++) {
+            for (int i = 0; i < JSONArrayGraphResponse.length(); ++i) {
                 JSONObject postData = JSONArrayGraphResponse.getJSONObject(i);
-
                 String type = postData.getString("type");
+
                 //get your values
                 if ("photo".equals(type) && postData.has("message") && postData.has("full_picture") && postData.has("id")) {
                     String id = postData.getString("id");
@@ -201,6 +205,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                     Post post = new Post(postData.getString("message"), postData.getString("full_picture"), postId, type);
                     postsList.add(post);
+
+                    if (postData.has("attachments")) {
+                        JSONObject attachments = postData.getJSONObject("attachments");
+                        JSONArray attachmentData = attachments.getJSONArray("data");
+                        JSONObject subAttachments = attachmentData.getJSONObject(0);
+                        JSONObject subAttachmentData = subAttachments.getJSONObject("subattachments");
+                        JSONArray data = subAttachmentData.getJSONArray("data");
+
+                        for (int j = 1; j < data.length(); ++j) {
+                            JSONObject subattachments = data.getJSONObject(j);
+                            JSONObject subattachmentMedia = subattachments.getJSONObject("media");
+                            JSONObject subattachmentImage = subattachmentMedia.getJSONObject("image");
+
+                            postsList.get(postsList.size() - 1).URLs.add(j, subattachmentImage.getString("src"));
+                        }
+                    }
                     verticalPagerAdapter.notifyDataSetChanged();
                 } else if ("video".equals(type) && postData.has("source")) {
                     String message = "";
@@ -355,7 +375,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 try {
                     theBitmap = Glide.
                             with(getBaseContext()).
-                            load(postsList.get(position).URL).
+                            load(postsList.get(position).URLs).
                             asBitmap().
                             into(500, 500).
                             get();
