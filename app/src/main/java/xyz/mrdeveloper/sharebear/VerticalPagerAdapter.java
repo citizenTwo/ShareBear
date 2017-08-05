@@ -133,7 +133,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.PagerAdapter;
-import android.util.Log;
+import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -157,8 +157,10 @@ class VerticalPagerAdapter extends PagerAdapter {
 
     private Context mContext;
     private Activity mActivity;
+    private TextView imageCount;
     private ArrayList<Post> mPostList;
     private LayoutInflater mLayoutInflater;
+    private ViewPager viewPager;
 
     VerticalPagerAdapter(Context context, ArrayList<Post> postList, Activity activity) {
         mContext = context;
@@ -183,16 +185,16 @@ class VerticalPagerAdapter extends PagerAdapter {
 
         LinearLayout linearLayout = (LinearLayout) itemView.findViewById(R.id.linearLayout);
 
+        viewPager = (ViewPager) itemView.findViewById(R.id.viewpager);
+
         TextView labelView = (TextView) itemView.findViewById(R.id.textView);
         labelView.setText(mPostList.get(pos).caption);
-
-        ImageView photoView = (ImageView) itemView.findViewById(R.id.imageView);
 
         FullscreenVideoLayout videoView = (FullscreenVideoLayout) itemView.findViewById(R.id.videoView);
         videoView.setActivity(mActivity);
 
         if ("video".equals(mPostList.get(pos).type)) {
-            linearLayout.removeView(photoView);
+            linearLayout.removeView(viewPager);
 
             Uri videoUri = Uri.parse(mPostList.get(pos).URLs.get(0));
 
@@ -206,32 +208,77 @@ class VerticalPagerAdapter extends PagerAdapter {
         } else {
             linearLayout.removeView(videoView);
 
-            Glide
-                    .with(mContext)
-                    .load(mPostList.get(pos).URLs.get(0))
-                    .centerCrop()
-                    .placeholder(R.drawable.ambassadors_logo)
-                    .crossFade()
-                    .skipMemoryCache(true)
-                    .diskCacheStrategy(DiskCacheStrategy.RESULT)
-                    .thumbnail(0.1f)
-                    .into(photoView);
+            SlideshowAdapter slideshowAdapter = new SlideshowAdapter(pos);
+            viewPager.setAdapter(slideshowAdapter);
+            viewPager.addOnPageChangeListener(viewPagerPageChangeListener);
 
-            photoView.setOnTouchListener(new View.OnTouchListener() {
+            setCurrentItem(0);
+        }
+
+        container.addView(itemView);
+        return itemView;
+    }
+
+    private void setCurrentItem(int position) {
+        viewPager.setCurrentItem(position, false);
+    }
+
+    private void displayMetaInfo(int position, int size) {
+        imageCount.setText((position + 1) + "/" + size);
+    }
+
+    private ViewPager.OnPageChangeListener viewPagerPageChangeListener = new ViewPager.OnPageChangeListener() {
+
+        @Override
+        public void onPageSelected(int position) {
+            //displayMetaInfo(position);
+            //Log.d("Check", "PageSelected + " + position);
+        }
+
+        @Override
+        public void onPageScrolled(int arg0, float arg1, int arg2) {
+            //Log.d("Check", "onPageScrolled");
+        }
+
+        @Override
+        public void onPageScrollStateChanged(int arg0) {
+            //Log.d("Check", "onPageScrollStateChanged");
+        }
+    };
+
+    private class SlideshowAdapter extends PagerAdapter {
+
+        private LayoutInflater layoutInflater;
+        private int feedPosition;
+
+        SlideshowAdapter(int feedPosition) {
+            this.feedPosition = feedPosition;
+        }
+
+        @Override
+        public Object instantiateItem(ViewGroup container, final int position) {
+
+            layoutInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+            View view = layoutInflater.inflate(R.layout.image_halfscreen_preview, container, false);
+
+            imageCount = (TextView) view.findViewById(R.id.lbl_count);
+
+            ImageView imageViewPreview = (ImageView) view.findViewById(R.id.half_image_preview);
+
+            imageViewPreview.setOnTouchListener(new View.OnTouchListener() {
 
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {
-                    Log.d("Check", "OnTouch event: " + event);
-
                     int action = MotionEventCompat.getActionMasked(event);
-
-                    Log.d("Check", "MotionEvent : " + event);
 
                     if (action == MotionEvent.ACTION_UP) {
 
                         Bundle bundle = new Bundle();
-                        bundle.putString("caption", mPostList.get(pos).caption);
-                        bundle.putStringArrayList("imageURLs", mPostList.get(pos).URLs);
+
+                        bundle.putString("caption", mPostList.get(feedPosition).caption);
+                        bundle.putStringArrayList("imageURLs", mPostList.get(feedPosition).URLs);
+                        bundle.putInt("startPosition", position);
 
                         FragmentManager fragmentManager = mActivity.getFragmentManager();
                         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -243,10 +290,39 @@ class VerticalPagerAdapter extends PagerAdapter {
                     return true;
                 }
             });
+
+            Glide.with(mContext)
+                    .load(mPostList.get(feedPosition).URLs.get(position))
+                    .thumbnail(0.5f)
+                    .centerCrop()
+                    .crossFade()
+                    .placeholder(R.drawable.ambassadors_logo)
+                    .skipMemoryCache(true)
+                    .diskCacheStrategy(DiskCacheStrategy.RESULT)
+                    .into(imageViewPreview);
+
+
+            displayMetaInfo(position, mPostList.get(feedPosition).URLs.size());
+            //Log.d("Check", "PageSelected + " + position);
+            container.addView(view);
+            return view;
         }
 
-        container.addView(itemView);
-        return itemView;
+        @Override
+        public int getCount() {
+            return mPostList.get(feedPosition).URLs.size();
+        }
+
+        @Override
+        public boolean isViewFromObject(View view, Object obj) {
+            return view == ((View) obj);
+        }
+
+
+        @Override
+        public void destroyItem(ViewGroup container, int position, Object object) {
+            container.removeView((View) object);
+        }
     }
 
     @Override

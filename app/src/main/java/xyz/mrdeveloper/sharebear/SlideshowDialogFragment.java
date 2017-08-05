@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -28,7 +27,7 @@ public class SlideshowDialogFragment extends DialogFragment {
     private ArrayList<String> imagesURLs;
     private ViewPager viewPager;
     private TextView imageCount, imageTitle;
-    private int selectedPosition = 0;
+    private int startPosition = 0;
     private String caption;
 
     static SlideshowDialogFragment newInstance() {
@@ -47,19 +46,20 @@ public class SlideshowDialogFragment extends DialogFragment {
         imagesURLs = new ArrayList<>();
         imagesURLs = getArguments().getStringArrayList("imageURLs");
         caption = getArguments().getString("caption");
+        startPosition = getArguments().getInt("startPosition");
 
         SlideshowAdapter slideshowAdapter = new SlideshowAdapter();
         viewPager.setAdapter(slideshowAdapter);
         viewPager.addOnPageChangeListener(viewPagerPageChangeListener);
 
-        setCurrentItem(selectedPosition);
+        setCurrentItem(startPosition);
 
         return v;
     }
 
     private void setCurrentItem(int position) {
         viewPager.setCurrentItem(position, false);
-        displayMetaInfo(selectedPosition);
+        displayMetaInfo(startPosition);
     }
 
     //  page change listener
@@ -108,7 +108,7 @@ public class SlideshowDialogFragment extends DialogFragment {
 
             View view = layoutInflater.inflate(R.layout.image_fullscreen_preview, container, false);
 
-            ImageView imageViewPreview = (ImageView) view.findViewById(R.id.image_preview);
+            ImageView imageViewPreview = (ImageView) view.findViewById(R.id.full_image_preview);
 
             imageViewPreview.setOnTouchListener(new View.OnTouchListener() {
 
@@ -116,8 +116,6 @@ public class SlideshowDialogFragment extends DialogFragment {
                 public boolean onTouch(View v, MotionEvent event) {
 
                     int action = MotionEventCompat.getActionMasked(event);
-
-                    Log.d("Check", "MotionEvent : " + event);
 
                     if (action == MotionEvent.ACTION_UP) {
 

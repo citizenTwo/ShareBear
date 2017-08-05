@@ -22,12 +22,12 @@
             android:background="@color/colorPrimary"
             android:orientation="vertical">
 
-            <ImageView
-                android:id="@+id/imageView"
-                android:layout_width="fill_parent"
+            <android.support.v4.view.ViewPager
+                android:id="@+id/viewpager"
+                android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:contentDescription="Image UPES Campus Ambassadors" />
+                android:background="@android:color/black" />
 
             <com.github.rtoshiro.view.video.FullscreenVideoLayout
                 android:id="@+id/videoView"
