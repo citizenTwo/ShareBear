@@ -1,8 +1,8 @@
 <component name="libraryTable">
   <library name="fullscreenvideoview-1.1.2">
     <CLASSES>
-      <root url="jar://$USER_HOME$/.android/build-cache/3fe1c2caddbea43f4136ee09bc0213c35ee9745b/output/jars/classes.jar!/" />
-      <root url="file://$USER_HOME$/.android/build-cache/3fe1c2caddbea43f4136ee09bc0213c35ee9745b/output/res" />
+      <root url="file://$USER_HOME$/.android/build-cache/004dea995ee043d3106952cfa598421585d9fc00/output/res" />
+      <root url="jar://$USER_HOME$/.android/build-cache/004dea995ee043d3106952cfa598421585d9fc00/output/jars/classes.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES>

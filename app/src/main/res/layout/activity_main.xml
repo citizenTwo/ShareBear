@@ -8,14 +8,22 @@
     android:background="@color/colorPrimary"
     tools:context="xyz.mrdeveloper.sharebear.MainActivity">
 
+    <include layout="@layout/toolbar" />
+
+    <include
+        layout="@layout/search_toolbar"
+        android:visibility="gone" />
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_marginTop="3dp"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:visibility="gone">
 
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/profile_image"
+
             android:layout_width="80dp"
             android:layout_height="80dp"
             android:src="@drawable/com_facebook_profile_picture_blank_square"
@@ -28,8 +36,8 @@
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_marginLeft="90dp"
-            android:textColor="@color/colorTextDark"
             android:text="Hi, Dirty Hippie"
+            android:textColor="@color/colorTextDark"
             android:textSize="18sp" />
 
     </RelativeLayout>
@@ -41,54 +49,61 @@
         android:layout_marginBottom="60dp"
         android:layout_marginTop="58dp" />
 
-    <LinearLayout
-        android:id="@+id/buttons"
-        android:layout_width="wrap_content"
-        android:layout_height="50dp"
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:orientation="horizontal">
+        android:background="@color/colorSecondary">
 
-        <ImageButton
-            android:id="@+id/share_facebook"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_weight="1"
-            android:clickable="true"
-            android:background="@drawable/button_facebook" />
+        <LinearLayout
+            android:id="@+id/buttons"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:orientation="horizontal">
 
-        <ImageButton
-            android:id="@+id/share_instagram"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:onClick="onClick"
-            android:layout_marginLeft="25dp"
-            android:background="@drawable/button_instagram" />
+            <ImageButton
+                android:id="@+id/share_facebook"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:background="@drawable/button_facebook"
+                android:clickable="true" />
 
-        <ImageButton
-            android:id="@+id/share_twitter"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:clickable="true"
-            android:layout_marginLeft="25dp"
-            android:background="@drawable/button_twitter" />
+            <ImageButton
+                android:id="@+id/share_instagram"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginLeft="25dp"
+                android:background="@drawable/button_instagram"
+                android:onClick="onClick" />
 
-        <ImageButton
-            android:id="@+id/share_linkedin"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:clickable="true"
-            android:layout_marginLeft="25dp"
-            android:background="@drawable/button_linkedin" />
+            <ImageButton
+                android:id="@+id/share_twitter"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginLeft="25dp"
+                android:background="@drawable/button_twitter"
+                android:clickable="true" />
 
-        <ImageButton
-            android:id="@+id/share_whatsapp"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:clickable="true"
-            android:layout_marginLeft="25dp"
-            android:background="@drawable/button_whatsapp" />
+            <ImageButton
+                android:id="@+id/share_linkedin"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginLeft="25dp"
+                android:background="@drawable/button_linkedin"
+                android:clickable="true" />
 
-    </LinearLayout>
+            <ImageButton
+                android:id="@+id/share_whatsapp"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginLeft="25dp"
+                android:background="@drawable/button_whatsapp"
+                android:clickable="true" />
+
+        </LinearLayout>
+    </RelativeLayout>
 
 </RelativeLayout>
