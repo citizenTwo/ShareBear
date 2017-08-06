@@ -58,9 +58,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import static xyz.mrdeveloper.sharebear.VerticalPagerAdapter.photoPosition;
+
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
-    Uri imageUri;
+    Uri URI;
     boolean endIsHere;
     int viewID;
     ProgressDialog dialog;
@@ -274,6 +276,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View view) {
 
         Log.d("Check", "Position in MainActivity: " + position);
+        Log.d("Check", "Photo Position: " + photoPosition);
 
         viewID = view.getId();
 
@@ -292,7 +295,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             linkedinIntent.setType("text/plain");
             linkedinIntent.putExtra(Intent.EXTRA_TEXT, msg + " " + text);
 
-//                uri = postsList.get(position).imageUri;
+//                uri = postsList.get(position).URI;
 //                linkedinIntent.putExtra(Intent.EXTRA_STREAM, uri);
 //                linkedinIntent.setType("image/*");
 
@@ -316,10 +319,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         } else {
             dialog = ProgressDialog.show(this, "Loading", "Please wait...", true);
+            dialog.setCanceledOnTouchOutside(true);
 
             dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
                 @Override
                 public void onCancel(final DialogInterface arg0) {
+                    isCancelled = true;
                     Toast.makeText(getBaseContext(), "Share Failed. Try again", Toast.LENGTH_SHORT).show();
                 }
             });
@@ -327,11 +332,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
                 @Override
                 public void onDismiss(final DialogInterface arg0) {
-                    Toast.makeText(getBaseContext(), "Ready to share!", Toast.LENGTH_SHORT).show();
+                    if (!isCancelled) {
+                        Toast.makeText(getBaseContext(), "Ready to share!", Toast.LENGTH_SHORT).show();
+                        isCancelled = false;
+                    }
                 }
             });
 
-            setImageUri();
+            if ("photo".equals(postsList.get(position).type)) {
+                setImageUri();
+            } else if ("video".equals(postsList.get(position).type)) {
+                Log.d("Check", "Here I am, this is me");
+                URI = Uri.parse(postsList.get(position).URLs.get(0));
+                Log.d("Check", "URI : " + URI);
+            }
         }
     }
 
@@ -347,7 +361,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Intent intent = new Intent();
                 intent.setAction(Intent.ACTION_SEND);
 
-                intent.putExtra(Intent.EXTRA_STREAM, imageUri);
+                intent.putExtra(Intent.EXTRA_STREAM, URI);
                 intent.setType("image/*");
 
                 intent.setPackage("com.instagram.android");
@@ -363,7 +377,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 intent.putExtra(Intent.EXTRA_TEXT, msg);
                 intent.setType("text/plain");
 
-                intent.putExtra(Intent.EXTRA_STREAM, imageUri);
+                intent.putExtra(Intent.EXTRA_STREAM, URI);
                 intent.setType("image/*");
 
                 intent.setPackage("com.twitter.android");
@@ -381,7 +395,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 intent.putExtra(Intent.EXTRA_TEXT, whatsAppMessage);
                 intent.setType("text/plain");
 
-                intent.putExtra(Intent.EXTRA_STREAM, imageUri);
+                intent.putExtra(Intent.EXTRA_STREAM, URI);
                 intent.setType("image/*");
 
                 intent.setPackage("com.whatsapp");
@@ -400,7 +414,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 try {
                     theBitmap = Glide.
                             with(getBaseContext()).
-                            load(postsList.get(position).URLs).
+                            load(postsList.get(position).URLs.get(photoPosition - 1)).
                             asBitmap().
                             into(500, 500).
                             get();
@@ -414,9 +428,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             protected void onPostExecute(Void dummy) {
                 if (null != theBitmap) {
                     Log.d("Check", "Image loaded");
-                    imageUri = getLocalBitmapUri(theBitmap);
+                    URI = getLocalBitmapUri(theBitmap);
 
-                    dialog.dismiss();
                     handleOnClick();
                 }
             }
@@ -492,6 +505,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onPause() {
         super.onPause();
+        dialog.dismiss();
     }
 
 
