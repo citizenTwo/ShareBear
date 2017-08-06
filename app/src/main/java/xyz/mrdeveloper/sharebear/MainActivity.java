@@ -280,72 +280,77 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         viewID = view.getId();
 
-        if (viewID == R.id.share_facebook) {
-            ShareLinkContent content = new ShareLinkContent.Builder()
-                    .setContentUrl(Uri.parse("http://www.facebook.com/1400364650188123/posts/" + postsList.get(position).id))
-                    .setShareHashtag(new ShareHashtag.Builder().setHashtag("#CampusAmbassadors").build())
-                    .build();
-            shareDialog.show(content);
-        } else if (viewID == R.id.share_linkedin) {
-            Intent linkedinIntent = new Intent(Intent.ACTION_SEND);
+        switch (viewID) {
 
-            String msg = postsList.get(position).caption;
-            String text = "http://www.facebook.com/1400364650188123/posts/" + postsList.get(position).id;
+            case R.id.share_facebook:
+                ShareLinkContent content = new ShareLinkContent.Builder()
+                        .setContentUrl(Uri.parse("http://www.facebook.com/1400364650188123/posts/" + postsList.get(position).id))
+                        .setShareHashtag(new ShareHashtag.Builder().setHashtag("#CampusAmbassadors").build())
+                        .build();
+                shareDialog.show(content);
+                break;
 
-            linkedinIntent.setType("text/plain");
-            linkedinIntent.putExtra(Intent.EXTRA_TEXT, msg + " " + text);
+            case R.id.share_linkedin:
+                Intent linkedinIntent = new Intent(Intent.ACTION_SEND);
+
+                String msg = postsList.get(position).caption;
+                String text = "http://www.facebook.com/1400364650188123/posts/" + postsList.get(position).id;
+
+                linkedinIntent.setType("text/plain");
+                linkedinIntent.putExtra(Intent.EXTRA_TEXT, msg + " " + text);
 
 //                uri = postsList.get(position).URI;
 //                linkedinIntent.putExtra(Intent.EXTRA_STREAM, uri);
 //                linkedinIntent.setType("image/*");
 
-            boolean linkedinAppFound = false;
-            List<ResolveInfo> matches2 = getPackageManager()
-                    .queryIntentActivities(linkedinIntent, 0);
+                boolean linkedinAppFound = false;
+                List<ResolveInfo> matches = getPackageManager()
+                        .queryIntentActivities(linkedinIntent, 0);
 
-            for (ResolveInfo info : matches2) {
-                if (info.activityInfo.packageName.toLowerCase().startsWith(
-                        "com.linkedin")) {
-                    linkedinIntent.setPackage(info.activityInfo.packageName);
-                    linkedinAppFound = true;
-                    break;
-                }
-            }
-
-            if (linkedinAppFound) {
-                startActivity(linkedinIntent);
-            } else {
-                Toast.makeText(MainActivity.this, "LinkedIn app not Installed in your mobile", Toast.LENGTH_SHORT).show();
-            }
-        } else {
-            dialog = ProgressDialog.show(this, "Loading", "Please wait...", true);
-            dialog.setCanceledOnTouchOutside(true);
-
-            dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
-                @Override
-                public void onCancel(final DialogInterface arg0) {
-                    isCancelled = true;
-                    Toast.makeText(getBaseContext(), "Share Failed. Try again", Toast.LENGTH_SHORT).show();
-                }
-            });
-
-            dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                @Override
-                public void onDismiss(final DialogInterface arg0) {
-                    if (!isCancelled) {
-                        Toast.makeText(getBaseContext(), "Ready to share!", Toast.LENGTH_SHORT).show();
-                        isCancelled = false;
+                for (ResolveInfo info : matches) {
+                    if (info.activityInfo.packageName.toLowerCase().startsWith(
+                            "com.linkedin")) {
+                        linkedinIntent.setPackage(info.activityInfo.packageName);
+                        linkedinAppFound = true;
+                        break;
                     }
                 }
-            });
 
-            if ("photo".equals(postsList.get(position).type)) {
-                setImageUri();
-            } else if ("video".equals(postsList.get(position).type)) {
-                Log.d("Check", "Here I am, this is me");
-                URI = Uri.parse(postsList.get(position).URLs.get(0));
-                Log.d("Check", "URI : " + URI);
-            }
+                if (linkedinAppFound) {
+                    startActivity(linkedinIntent);
+                } else {
+                    Toast.makeText(MainActivity.this, "LinkedIn app not Installed in your mobile", Toast.LENGTH_SHORT).show();
+                }
+
+            default:
+                dialog = ProgressDialog.show(this, "Loading", "Please wait...", true);
+                dialog.setCanceledOnTouchOutside(true);
+
+                dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(final DialogInterface arg0) {
+                        isCancelled = true;
+                        Toast.makeText(getBaseContext(), "Share Failed. Try again", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+                dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(final DialogInterface arg0) {
+                        if (!isCancelled) {
+                            Toast.makeText(getBaseContext(), "Ready to share!", Toast.LENGTH_SHORT).show();
+                            isCancelled = false;
+                        }
+                    }
+                });
+
+                if ("photo".equals(postsList.get(position).type)) {
+                    setImageUri();
+                } else if ("video".equals(postsList.get(position).type)) {
+                    Log.d("Check", "Here I am, this is me");
+                    URI = Uri.parse(postsList.get(position).URLs.get(0));
+                    Log.d("Check", "URI : " + URI);
+                }
         }
     }
 
@@ -364,8 +369,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 intent.putExtra(Intent.EXTRA_STREAM, URI);
                 intent.setType("image/*");
 
-                intent.setPackage("com.instagram.android");
-                startActivity(intent);
+                boolean instagramAppFound = false;
+                List<ResolveInfo> matches = getPackageManager()
+                        .queryIntentActivities(intent, 0);
+
+                for (ResolveInfo info : matches) {
+                    if (info.activityInfo.packageName.toLowerCase().startsWith(
+                            "com.instagram")) {
+                        intent.setPackage(info.activityInfo.packageName);
+                        instagramAppFound = true;
+                        break;
+                    }
+                }
+
+                if (instagramAppFound) {
+                    startActivity(intent);
+                } else {
+                    Toast.makeText(MainActivity.this, "Instagram app not Installed in your mobile", Toast.LENGTH_SHORT).show();
+                }
                 break;
 
             case R.id.share_twitter:
@@ -380,8 +401,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 intent.putExtra(Intent.EXTRA_STREAM, URI);
                 intent.setType("image/*");
 
-                intent.setPackage("com.twitter.android");
-                startActivity(intent);
+                boolean twitterAppFound = false;
+                matches = getPackageManager()
+                        .queryIntentActivities(intent, 0);
+
+                for (ResolveInfo info : matches) {
+                    if (info.activityInfo.packageName.toLowerCase().startsWith(
+                            "com.twitter")) {
+                        intent.setPackage(info.activityInfo.packageName);
+                        twitterAppFound = true;
+                        break;
+                    }
+                }
+
+                if (twitterAppFound) {
+                    startActivity(intent);
+                } else {
+                    Toast.makeText(MainActivity.this, "Twitter app not Installed in your mobile", Toast.LENGTH_SHORT).show();
+                }
                 break;
 
             case R.id.share_whatsapp:
@@ -398,8 +435,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 intent.putExtra(Intent.EXTRA_STREAM, URI);
                 intent.setType("image/*");
 
-                intent.setPackage("com.whatsapp");
-                startActivity(intent);
+                boolean WhatsAppFound = false;
+                matches = getPackageManager()
+                        .queryIntentActivities(intent, 0);
+
+                for (ResolveInfo info : matches) {
+                    if (info.activityInfo.packageName.toLowerCase().startsWith(
+                            "com.whatsapp")) {
+                        intent.setPackage(info.activityInfo.packageName);
+                        WhatsAppFound = true;
+                        break;
+                    }
+                }
+
+                if (WhatsAppFound) {
+                    startActivity(intent);
+                } else {
+                    Toast.makeText(MainActivity.this, "WhatsApp not Installed in your mobile", Toast.LENGTH_SHORT).show();
+                }
                 break;
         }
     }
@@ -533,7 +586,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //                return true;
             case R.id.action_search:
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                    circleReveal(R.id.searchtoolbar,1,true,true);
+                    circleReveal(R.id.searchtoolbar, 1, true, true);
                 else
                     searchtollbar.setVisibility(View.VISIBLE);
 
@@ -547,18 +600,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    public void setSearchtollbar()
-    {
+    public void setSearchtollbar() {
         searchtollbar = (Toolbar) findViewById(R.id.searchtoolbar);
         if (searchtollbar != null) {
             searchtollbar.inflateMenu(R.menu.menu_search);
-            search_menu=searchtollbar.getMenu();
+            search_menu = searchtollbar.getMenu();
 
             searchtollbar.setNavigationOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                        circleReveal(R.id.searchtoolbar,1,true,false);
+                        circleReveal(R.id.searchtoolbar, 1, true, false);
                     else
                         searchtollbar.setVisibility(View.GONE);
                 }
@@ -571,9 +623,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 public boolean onMenuItemActionCollapse(MenuItem item) {
                     // Do something when collapsed
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        circleReveal(R.id.searchtoolbar,1,true,false);
-                    }
-                    else
+                        circleReveal(R.id.searchtoolbar, 1, true, false);
+                    } else
                         searchtollbar.setVisibility(View.GONE);
                     return true;
                 }
@@ -592,8 +643,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Log.d("toolbar", "setSearchtollbar: NULL");
     }
 
-    public void initSearchView()
-    {
+    public void initSearchView() {
         final SearchView searchView =
                 (SearchView) search_menu.findItem(R.id.action_filter_search).getActionView();
 
@@ -651,34 +701,32 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public void circleReveal(int viewID, int posFromRight, boolean containsOverflow, final boolean isShow)
-    {
+    public void circleReveal(int viewID, int posFromRight, boolean containsOverflow, final boolean isShow) {
         final View myView = findViewById(viewID);
 
-        int width=myView.getWidth();
+        int width = myView.getWidth();
 
-        if(posFromRight>0)
-            width-=(posFromRight*getResources().getDimensionPixelSize(R.dimen.abc_action_button_min_width_material))-(getResources().getDimensionPixelSize(R.dimen.abc_action_button_min_width_material)/ 2);
-        if(containsOverflow)
-            width-=getResources().getDimensionPixelSize(R.dimen.abc_action_button_min_width_overflow_material);
+        if (posFromRight > 0)
+            width -= (posFromRight * getResources().getDimensionPixelSize(R.dimen.abc_action_button_min_width_material)) - (getResources().getDimensionPixelSize(R.dimen.abc_action_button_min_width_material) / 2);
+        if (containsOverflow)
+            width -= getResources().getDimensionPixelSize(R.dimen.abc_action_button_min_width_overflow_material);
 
-        int cx=width;
-        int cy=myView.getHeight()/2;
+        int cx = width;
+        int cy = myView.getHeight() / 2;
 
         Animator anim;
-        if(isShow)
-            anim = ViewAnimationUtils.createCircularReveal(myView, cx, cy, 0,(float)width);
+        if (isShow)
+            anim = ViewAnimationUtils.createCircularReveal(myView, cx, cy, 0, (float) width);
         else
-            anim = ViewAnimationUtils.createCircularReveal(myView, cx, cy, (float)width, 0);
+            anim = ViewAnimationUtils.createCircularReveal(myView, cx, cy, (float) width, 0);
 
-        anim.setDuration((long)220);
+        anim.setDuration((long) 220);
 
         // make the view invisible when the animation is done
         anim.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
-                if(!isShow)
-                {
+                if (!isShow) {
                     super.onAnimationEnd(animation);
                     myView.setVisibility(View.INVISIBLE);
                 }
@@ -686,7 +734,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
 
         // make the view visible and start the animation
-        if(isShow)
+        if (isShow)
             myView.setVisibility(View.VISIBLE);
 
         // start the animation
