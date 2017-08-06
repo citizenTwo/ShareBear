@@ -72,12 +72,10 @@ public class SlideshowDialogFragment extends DialogFragment {
 
         @Override
         public void onPageScrolled(int arg0, float arg1, int arg2) {
-            //Log.d("Check", "onPageScrolled");
         }
 
         @Override
         public void onPageScrollStateChanged(int arg0) {
-            //Log.d("Check", "onPageScrollStateChanged");
         }
     };
 

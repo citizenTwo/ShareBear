@@ -161,6 +161,7 @@ class VerticalPagerAdapter extends PagerAdapter {
     private ArrayList<Post> mPostList;
     private LayoutInflater mLayoutInflater;
     private ViewPager viewPager;
+    public static int photoPosition;
 
     VerticalPagerAdapter(Context context, ArrayList<Post> postList, Activity activity) {
         mContext = context;
@@ -200,12 +201,11 @@ class VerticalPagerAdapter extends PagerAdapter {
 
             try {
                 videoView.setVideoURI(videoUri);
-
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
-        } else {
+        } else if ("photo".equals(mPostList.get(pos).type)) {
             linearLayout.removeView(videoView);
 
             SlideshowAdapter slideshowAdapter = new SlideshowAdapter(pos);
@@ -303,6 +303,7 @@ class VerticalPagerAdapter extends PagerAdapter {
 
 
             displayMetaInfo(position, mPostList.get(feedPosition).URLs.size());
+            photoPosition = position;
             //Log.d("Check", "PageSelected + " + position);
             container.addView(view);
             return view;
