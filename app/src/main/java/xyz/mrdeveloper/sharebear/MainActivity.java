@@ -32,6 +32,8 @@ import com.facebook.login.LoginManager;
 import com.facebook.share.model.ShareHashtag;
 import com.facebook.share.model.ShareLinkContent;
 import com.facebook.share.widget.ShareDialog;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -68,6 +70,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+
         shareDialog = new ShareDialog(this);
 
         endIsHere = false;
@@ -76,9 +81,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         isVideoPlaying = false;
 
         Bundle inBundle = getIntent().getExtras();
-        firstName = inBundle.get("FirstName").toString();
-        lastName = inBundle.get("LastName").toString();
-        URL = inBundle.get("URLs").toString();
+        firstName = inBundle.getString("FirstName");
+        lastName = inBundle.getString("LastName");
+        URL = inBundle.getString("URLs");
 
         Log.d("Check", firstName + "  " + lastName);
 
@@ -252,6 +257,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         Log.d("Check", "Position in MainActivity: " + position);
         Log.d("Check", "Photo Position: " + photoPosition);
+
+        final DatabaseReference mFirebaseDatabase;
+        FirebaseDatabase mFirebaseInstance = FirebaseDatabase.getInstance();
 
         viewID = view.getId();
 
