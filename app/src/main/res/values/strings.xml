@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Share Bear</string>
+    <string name="app_name"></string>
     <string name="facebook_app_id">1131119040366591</string>
 
     <string name="action_search">Search</string>

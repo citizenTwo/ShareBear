@@ -8,11 +8,6 @@
     android:background="@color/colorPrimary"
     tools:context="xyz.mrdeveloper.sharebear.MainActivity">
 
-    <include layout="@layout/toolbar" />
-
-    <include
-        layout="@layout/search_toolbar"
-        android:visibility="gone" />
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -46,8 +41,12 @@
         android:id="@+id/verticalViewPager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="60dp"
-        android:layout_marginTop="58dp" />
+        android:layout_marginBottom="60dp" />
+
+    <include layout="@layout/toolbar" />
+    <include layout="@layout/search_toolbar"
+        android:visibility="gone" />
+
 
     <RelativeLayout
         android:layout_width="match_parent"

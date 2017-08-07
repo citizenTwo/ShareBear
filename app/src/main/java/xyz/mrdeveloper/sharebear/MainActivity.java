@@ -1,26 +1,33 @@
 package xyz.mrdeveloper.sharebear;
 
+import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.app.DownloadManager;
 import android.app.ProgressDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.RequiresApi;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
@@ -58,6 +65,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import static java.sql.Types.NULL;
 import static xyz.mrdeveloper.sharebear.VerticalPagerAdapter.photoPosition;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
@@ -77,6 +85,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     boolean doubleBackToExitPressedOnce = false;
     boolean justStarted;
     boolean isCancelled;
+    DownloadManager downloadManager;
 
     //SearchBar
     Toolbar toolbar, searchtollbar;
@@ -88,12 +97,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Permissions
+
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE
+                }, 1);
+            }
+        }
+
         //SearchBar
         toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setBackgroundColor(Color.parseColor("#00000000"));
+
+//        android.app.ActionBar actionBar = getActionBar();
+//        actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#00000000")));
+
         setSupportActionBar(toolbar);
         setSearchtollbar();
 
         shareDialog = new ShareDialog(this);
+
+        downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
 
         endIsHere = false;
         justStarted = true;
@@ -282,45 +308,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         switch (viewID) {
 
-            case R.id.share_facebook:
-                ShareLinkContent content = new ShareLinkContent.Builder()
-                        .setContentUrl(Uri.parse("http://www.facebook.com/1400364650188123/posts/" + postsList.get(position).id))
-                        .setShareHashtag(new ShareHashtag.Builder().setHashtag("#CampusAmbassadors").build())
-                        .build();
-                shareDialog.show(content);
-                break;
+//            case R.id.share_facebook:
+//                ShareLinkContent content = new ShareLinkContent.Builder()
+//                        .setContentUrl(Uri.parse("http://www.facebook.com/1400364650188123/posts/" + postsList.get(position).id))
+//                        .setShareHashtag(new ShareHashtag.Builder().setHashtag("#CampusAmbassadors").build())
+//                        .build();
+//                shareDialog.show(content);
+//                break;
 
-            case R.id.share_linkedin:
-                Intent linkedinIntent = new Intent(Intent.ACTION_SEND);
-
-                String msg = postsList.get(position).caption;
-                String text = "http://www.facebook.com/1400364650188123/posts/" + postsList.get(position).id;
-
-                linkedinIntent.setType("text/plain");
-                linkedinIntent.putExtra(Intent.EXTRA_TEXT, msg + " " + text);
-
-//                uri = postsList.get(position).URI;
-//                linkedinIntent.putExtra(Intent.EXTRA_STREAM, uri);
-//                linkedinIntent.setType("image/*");
-
-                boolean linkedinAppFound = false;
-                List<ResolveInfo> matches = getPackageManager()
-                        .queryIntentActivities(linkedinIntent, 0);
-
-                for (ResolveInfo info : matches) {
-                    if (info.activityInfo.packageName.toLowerCase().startsWith(
-                            "com.linkedin")) {
-                        linkedinIntent.setPackage(info.activityInfo.packageName);
-                        linkedinAppFound = true;
-                        break;
-                    }
-                }
-
-                if (linkedinAppFound) {
-                    startActivity(linkedinIntent);
-                } else {
-                    Toast.makeText(MainActivity.this, "LinkedIn app not Installed in your mobile", Toast.LENGTH_SHORT).show();
-                }
 
             default:
                 dialog = ProgressDialog.show(this, "Loading", "Please wait...", true);
@@ -344,33 +339,109 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }
                 });
 
-                if ("photo".equals(postsList.get(position).type)) {
-                    setImageUri();
-                } else if ("video".equals(postsList.get(position).type)) {
-                    Log.d("Check", "Here I am, this is me");
-                    URI = Uri.parse(postsList.get(position).URLs.get(0));
-                    Log.d("Check", "URI : " + URI);
-                }
+                setUri();
         }
     }
 
     public void handleOnClick() {
         switch (viewID) {
 
-            case R.id.share_instagram:
+            case R.id.share_facebook:
+                String message;
+                message = postsList.get(position).caption;
+
+                //You can read the image from external drive too
+                Intent  intent = new Intent();
+                intent.setAction(Intent.ACTION_SEND);
+
+                intent.putExtra(Intent.EXTRA_TEXT, message);
+                intent.setType("text/plain");
+
+                Log.d("Video", "" + URI);
+                intent.putExtra(Intent.EXTRA_STREAM, URI);
+
+                if ("photo".equals(postsList.get(position).type)) {
+                    intent.setType("image/*");
+                } else if ("video".equals(postsList.get(position).type)) {
+                    intent.setType("video/*");
+                }
+
+
+                boolean FacebookAppFound = false;
+                List<ResolveInfo> matches = getPackageManager()
+                        .queryIntentActivities(intent, 0);
+
+                for (ResolveInfo info : matches) {
+                    if (info.activityInfo.packageName.toLowerCase().startsWith(
+                            "com.facebook")) {
+                        intent.setPackage(info.activityInfo.packageName);
+                        FacebookAppFound = true;
+                        break;
+                    }
+                }
+
+                if (FacebookAppFound) {
+                    startActivity(intent);
+                } else {
+                    Toast.makeText(MainActivity.this, "FaceBook App not Installed in your mobile", Toast.LENGTH_SHORT).show();
+                }
+                break;
+
+
+            case R.id.share_linkedin:
+                Intent linkedinIntent = new Intent(Intent.ACTION_SEND);
+
                 String msg = postsList.get(position).caption;
+//                String text = "http://www.facebook.com/1400364650188123/posts/" + postsList.get(position).id;
+
+                linkedinIntent.setType("text/plain");
+                linkedinIntent.putExtra(Intent.EXTRA_TEXT, msg);
+
+                linkedinIntent.putExtra(Intent.EXTRA_STREAM, URI);
+                if ("photo".equals(postsList.get(position).type)) {
+                    linkedinIntent.setType("image/*");
+                } else if ("video".equals(postsList.get(position).type)) {
+                    linkedinIntent.setType("video/*");
+                }
+
+                boolean linkedinAppFound = false;
+                matches = getPackageManager()
+                        .queryIntentActivities(linkedinIntent, 0);
+
+                for (ResolveInfo info : matches) {
+                    if (info.activityInfo.packageName.toLowerCase().startsWith(
+                            "com.linkedin")) {
+                        linkedinIntent.setPackage(info.activityInfo.packageName);
+                        linkedinAppFound = true;
+                        break;
+                    }
+                }
+
+                if (linkedinAppFound) {
+                    startActivity(linkedinIntent);
+                } else {
+                    Toast.makeText(MainActivity.this, "LinkedIn app not Installed in your mobile", Toast.LENGTH_SHORT).show();
+                }
+                break;
+
+            case R.id.share_instagram:
+                msg = postsList.get(position).caption;
                 ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
                 ClipData clip = ClipData.newPlainText("caption", msg);
                 clipboard.setPrimaryClip(clip);
 
-                Intent intent = new Intent();
+                intent = new Intent();
                 intent.setAction(Intent.ACTION_SEND);
 
                 intent.putExtra(Intent.EXTRA_STREAM, URI);
-                intent.setType("image/*");
+                if ("photo".equals(postsList.get(position).type)) {
+                    intent.setType("image/*");
+                } else if ("video".equals(postsList.get(position).type)) {
+                    intent.setType("video/*");
+                }
 
                 boolean instagramAppFound = false;
-                List<ResolveInfo> matches = getPackageManager()
+                matches = getPackageManager()
                         .queryIntentActivities(intent, 0);
 
                 for (ResolveInfo info : matches) {
@@ -399,7 +470,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 intent.setType("text/plain");
 
                 intent.putExtra(Intent.EXTRA_STREAM, URI);
-                intent.setType("image/*");
+                if ("photo".equals(postsList.get(position).type)) {
+                    intent.setType("image/*");
+                } else if ("video".equals(postsList.get(position).type)) {
+                    intent.setType("video/*");
+                }
 
                 boolean twitterAppFound = false;
                 matches = getPackageManager()
@@ -432,8 +507,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 intent.putExtra(Intent.EXTRA_TEXT, whatsAppMessage);
                 intent.setType("text/plain");
 
+                Log.d("Video", "" + URI);
                 intent.putExtra(Intent.EXTRA_STREAM, URI);
-                intent.setType("image/*");
+
+//                intent.setType("image/*");
+                if ("photo".equals(postsList.get(position).type)) {
+                    intent.setType("image/*");
+                } else if ("video".equals(postsList.get(position).type)) {
+                    intent.setType("video/*");
+                }
+
 
                 boolean WhatsAppFound = false;
                 matches = getPackageManager()
@@ -457,20 +540,64 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    void setImageUri() {
+
+    void setUri() {
         new AsyncTask<Void, Void, Void>() {
             Bitmap theBitmap;
+            String path;
 
             @Override
             protected Void doInBackground(Void... params) {
 //                Looper.prepare();
                 try {
-                    theBitmap = Glide.
-                            with(getBaseContext()).
-                            load(postsList.get(position).URLs.get(photoPosition - 1)).
-                            asBitmap().
-                            into(500, 500).
-                            get();
+
+                    if ("photo".equals(postsList.get(position).type)) {
+
+                        if (photoPosition == 0)
+                            photoPosition = 1;
+
+                        Log.d("Minion", "Position : " + (photoPosition - 1));
+                        theBitmap = Glide.
+                                with(getBaseContext()).
+//                                      load(postsList.get(position).URLs.
+        load(postsList.get(position).URLs.get(photoPosition - 1)).
+                                        asBitmap().
+                                        into(500, 500).
+                                        get();
+
+                    } else if ("video".equals(postsList.get(position).type)) {
+
+                        int start = 0;
+                        int end = 0;
+
+                        String name = postsList.get(position).URLs.get(0);
+                        for(int i = 0; name.charAt(i) != '\0'; i++){
+                            if(name.charAt(i) == '/') start = i;
+                            if(name.charAt(i) == '?') {
+                                end = i;
+                                break;
+                            }
+                        }
+
+                        name = name.substring(start + 1, end);
+
+                        path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/ShareBear/" + name;
+                        File folder = new File(path);
+                        Log.d("Video", "Name of Video : " + name);
+
+                        if(!folder.exists()) {
+                            Uri uri = Uri.parse(postsList.get(position).URLs.get(0));
+                            DownloadManager.Request request = new DownloadManager.Request(uri);
+
+                            request.setDestinationInExternalPublicDir("/ShareBear", name);
+                            request.setVisibleInDownloadsUi(true);
+                            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_HIDDEN);
+
+                            downloadManager.enqueue(request);
+                        }
+
+                    }
+
                 } catch (final ExecutionException | InterruptedException e) {
                     Log.e("Check", e.getMessage());
                 }
@@ -479,15 +606,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             @Override
             protected void onPostExecute(Void dummy) {
-                if (null != theBitmap) {
-                    Log.d("Check", "Image loaded");
-                    URI = getLocalBitmapUri(theBitmap);
+
+                if ("photo".equals(postsList.get(position).type)) {
+                    if (null != theBitmap) {
+                        Log.d("Check", "Image loaded");
+                        URI = getLocalBitmapUri(theBitmap);
+                    }
+                } else if ("video".equals(postsList.get(position).type)) {
+
+                    File file = new File(path);
+                    URI = Uri.fromFile(file);
 
                     handleOnClick();
+//
+                    Log.d("Check", "URL : " + postsList.get(position).URLs.get(0));
+                    Log.d("Check", "URI : " + URI);
                 }
+
+                handleOnClick();
             }
         }.execute();
     }
+
 
     private Uri getLocalBitmapUri(Bitmap bmp) {
 
