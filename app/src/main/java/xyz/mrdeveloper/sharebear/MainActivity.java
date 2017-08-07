@@ -22,25 +22,28 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
-import android.os.Looper;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewAnimationUtils;
+import android.view.ViewGroup;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -50,8 +53,6 @@ import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.HttpMethod;
 import com.facebook.login.LoginManager;
-import com.facebook.share.model.ShareHashtag;
-import com.facebook.share.model.ShareLinkContent;
 import com.facebook.share.widget.ShareDialog;
 
 import org.json.JSONArray;
@@ -66,10 +67,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import static java.sql.Types.NULL;
 import static xyz.mrdeveloper.sharebear.VerticalPagerAdapter.photoPosition;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
     Uri URI;
     boolean endIsHere;
@@ -88,17 +88,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     boolean isCancelled;
     DownloadManager downloadManager;
 
+    public ArrayList<Post> funlist;
+
     //SearchBar
     Toolbar toolbar, searchtollbar;
     Menu search_menu;
     MenuItem item_search;
+
+    RecyclerView searchListView;
+    SearchListAdapter searchListAdapter;
+//    SearchView searchView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Permissions
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        /*Permissions*/
 
         if (Build.VERSION.SDK_INT >= 23) {
             if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -108,7 +115,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
 
-        //SearchBar
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        /*SearchBar*/
+
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setBackgroundColor(Color.parseColor("#00000000"));
 
@@ -117,6 +126,40 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         setSupportActionBar(toolbar);
         setSearchtollbar();
+
+        //Funlist for searchBar Testing...
+        funlist = new ArrayList<>();
+        Post post = new Post("1","Hello","1","hola");
+        funlist.add(post);
+        post = new Post("2","Hello","1","hola");
+        funlist.add(post);
+        post = new Post("3","Hello","1","hola");
+        funlist.add(post);
+        post = new Post("12","Hello","1","hola");
+        funlist.add(post);
+        post = new Post("13","Hello","1","hola");
+        funlist.add(post);
+        post = new Post("123","Hello","1","hola");
+        funlist.add(post);
+        post = new Post("22","Hello","1","hola");
+        funlist.add(post);
+        post = new Post("121","Hello","1","hola");
+        funlist.add(post);
+
+//        searchView.setOnQueryTextListener(this);
+//
+        searchListView = (RecyclerView) findViewById(R.id.list_view);
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this);
+        searchListView.setLayoutManager(mLayoutManager);
+                //        searchView = (SearchView) findViewById(R.id.search_view);
+
+        searchListAdapter = new SearchListAdapter(this, funlist);
+        searchListView.setAdapter(searchListAdapter);
+
+//        searchView.setOnQueryTextListener(this);
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         shareDialog = new ShareDialog(this);
 
@@ -390,38 +433,37 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
             case R.id.share_linkedin:
-                Intent linkedinIntent = new Intent(Intent.ACTION_SEND);
+                intent = new Intent();
+                intent.setAction(Intent.ACTION_SEND);
 
                 String msg = postsList.get(position).caption;
-//                String text = "http://www.facebook.com/1400364650188123/posts/" + postsList.get(position).id;
+                intent.putExtra(Intent.EXTRA_TEXT, msg);
+                intent.setType("text/plain");
 
-                linkedinIntent.setType("text/plain");
-                linkedinIntent.putExtra(Intent.EXTRA_TEXT, msg);
-
-                linkedinIntent.putExtra(Intent.EXTRA_STREAM, URI);
+                intent.putExtra(Intent.EXTRA_STREAM, URI);
                 if ("photo".equals(postsList.get(position).type)) {
-                    linkedinIntent.setType("image/*");
+                    intent.setType("image/*");
                 } else if ("video".equals(postsList.get(position).type)) {
-                    linkedinIntent.setType("video/*");
+                    intent.setType("video/*");
                 }
 
-                boolean linkedinAppFound = false;
+                boolean LinkedInAppFound = false;
                 matches = getPackageManager()
-                        .queryIntentActivities(linkedinIntent, 0);
+                        .queryIntentActivities(intent, 0);
 
                 for (ResolveInfo info : matches) {
                     if (info.activityInfo.packageName.toLowerCase().startsWith(
                             "com.linkedin")) {
-                        linkedinIntent.setPackage(info.activityInfo.packageName);
-                        linkedinAppFound = true;
+                        intent.setPackage(info.activityInfo.packageName);
+                        LinkedInAppFound = true;
                         break;
                     }
                 }
 
-                if (linkedinAppFound) {
-                    startActivity(linkedinIntent);
+                if (LinkedInAppFound) {
+                    startActivity(intent);
                 } else {
-                    Toast.makeText(MainActivity.this, "LinkedIn app not Installed in your mobile", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "Linkedin app not Installed in your mobile", Toast.LENGTH_SHORT).show();
                 }
                 break;
 
@@ -705,6 +747,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
+
+
     /*SearchBar
     *
     ******************************************************************************************************
@@ -713,6 +757,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     *
     * This sections briefly works for the search bar that is being implemented
     */
+
+//    @Override
+//    public boolean onQueryTextSubmit(String query) {
+//        return false;
+//    }
+//
+//    @Override
+//    public boolean onQueryTextChange(String newText) {
+//        searchListAdapter.filter(newText);
+//        return false;
+//    }
 
     @Override
     public boolean onCreateOptionsMenu(final Menu menu) {
@@ -732,8 +787,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     circleReveal(R.id.searchtoolbar, 1, true, true);
                 else
                     searchtollbar.setVisibility(View.VISIBLE);
+                    searchListView.setVisibility(View.VISIBLE);
+                    item_search.expandActionView();
 
-                item_search.expandActionView();
                 return true;
 //            case R.id.action_settings:
 //                Toast.makeText(this, "Home Settings Click", Toast.LENGTH_SHORT).show();
@@ -769,6 +825,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         circleReveal(R.id.searchtoolbar, 1, true, false);
                     } else
                         searchtollbar.setVisibility(View.GONE);
+                        searchListView.setVisibility(View.GONE);
+                        searchListAdapter.diaplayList.clear();
+
                     return true;
                 }
 
@@ -834,9 +893,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
 
             public void callSearch(String query) {
-                //Do searching
-                Log.i("query", "" + query);
-
+                Log.d("Search", "Entered here");
+                searchListAdapter.filter(query);
+                Log.i("Search", "Query : " + query);
             }
 
         });
@@ -882,7 +941,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         // start the animation
         anim.start();
-
 
     }
 }

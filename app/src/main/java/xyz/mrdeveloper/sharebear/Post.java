@@ -23,7 +23,6 @@ class Post {
     String type;
     ArrayList<String> URLs;
     String id;
-    String videoPath;
 
     Post(String caption, String URL, String id, String type) {
         this.URLs = new ArrayList<>();
