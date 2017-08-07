@@ -28,8 +28,8 @@
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_marginLeft="90dp"
-            android:textColor="@color/colorTextDark"
             android:text="Hi, Dirty Hippie"
+            android:textColor="@color/colorTextDark"
             android:textSize="18sp" />
 
     </RelativeLayout>
@@ -54,40 +54,40 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_weight="1"
-            android:clickable="true"
-            android:background="@drawable/button_facebook" />
+            android:background="@drawable/button_facebook"
+            android:clickable="true" />
 
         <ImageButton
             android:id="@+id/share_instagram"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:onClick="onClick"
             android:layout_marginLeft="25dp"
-            android:background="@drawable/button_instagram" />
+            android:background="@drawable/button_instagram"
+            android:onClick="onClick" />
 
         <ImageButton
             android:id="@+id/share_twitter"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:clickable="true"
             android:layout_marginLeft="25dp"
-            android:background="@drawable/button_twitter" />
+            android:background="@drawable/button_twitter"
+            android:clickable="true" />
 
         <ImageButton
             android:id="@+id/share_linkedin"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:clickable="true"
             android:layout_marginLeft="25dp"
-            android:background="@drawable/button_linkedin" />
+            android:background="@drawable/button_linkedin"
+            android:clickable="true" />
 
         <ImageButton
             android:id="@+id/share_whatsapp"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:clickable="true"
             android:layout_marginLeft="25dp"
-            android:background="@drawable/button_whatsapp" />
+            android:background="@drawable/button_whatsapp"
+            android:clickable="true" />
 
     </LinearLayout>
 
