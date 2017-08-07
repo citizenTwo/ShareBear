@@ -25,6 +25,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
@@ -615,7 +616,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 } else if ("video".equals(postsList.get(position).type)) {
 
                     File file = new File(path);
-                    URI = Uri.fromFile(file);
+                    URI = FileProvider.getUriForFile(MainActivity.this,
+                            BuildConfig.APPLICATION_ID + ".provider",
+                            file);
 
                     handleOnClick();
 //
