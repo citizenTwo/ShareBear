@@ -303,7 +303,6 @@ class VerticalPagerAdapter extends PagerAdapter {
 
 
             displayMetaInfo(position, mPostList.get(feedPosition).URLs.size());
-            photoPosition = position;
             //Log.d("Check", "PageSelected + " + position);
             container.addView(view);
             return view;

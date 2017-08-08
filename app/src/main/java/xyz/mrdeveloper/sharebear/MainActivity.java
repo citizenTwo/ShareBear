@@ -15,7 +15,10 @@ import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -24,6 +27,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
@@ -39,6 +43,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -102,6 +107,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        if (Build.VERSION.SDK_INT < 16) {
+            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        }
         setContentView(R.layout.activity_main);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -436,6 +447,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 intent = new Intent();
                 intent.setAction(Intent.ACTION_SEND);
 
+                intent.putExtra(Intent.EXTRA_SUBJECT, "dsvs");
                 String msg = postsList.get(position).caption;
                 intent.putExtra(Intent.EXTRA_TEXT, msg);
                 intent.setType("text/plain");
@@ -746,9 +758,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         dialog.dismiss();
     }
 
-
-
-
     /*SearchBar
     *
     ******************************************************************************************************
@@ -772,6 +781,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public boolean onCreateOptionsMenu(final Menu menu) {
         getMenuInflater().inflate(R.menu.menu_home, menu);
+
+        Drawable drawable = menu.getItem(0).getIcon();
+        if(drawable != null) {
+            drawable.mutate();
+            drawable.setColorFilter(getResources().getColor(R.color.colorSecondary), PorterDuff.Mode.SRC_ATOP);
+        }
+
         return true;
     }
 

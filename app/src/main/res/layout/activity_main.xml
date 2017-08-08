@@ -41,7 +41,7 @@
         android:id="@+id/verticalViewPager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="60dp" />
+        android:layout_marginBottom="54dp" />
 
     <include layout="@layout/toolbar" />
     <include layout="@layout/search_toolbar"

@@ -7,6 +7,6 @@
     <color name="colorText">#dddddd</color>
     <color name="colorTextDark">#222222</color>
 
-    <color name="colorSecondary">#ffae19</color>
+    <color name="colorSecondary">#ffa000</color>
     <color name="colorSecondaryDark">#ffa500</color>
 </resources>
